@@ -658,7 +658,8 @@ int main( int argc, char **argv )
         }
   
 		// light infos
-		float lightPosition[3] = { 2.0f, 2.0f, 1.0f};
+		//~ float lightPosition[3] = { 2.0f, 2.0f, 1.0f};
+		float lightPosition[3] = { 2.0f, 2.0f, 2.0f};
 		float lightColor[3] = {1.f, 1.f, 1.f};
 		float lightIntensity = 10.0f;
 		
@@ -693,23 +694,24 @@ int main( int argc, char **argv )
         glEnable(GL_BLEND);
 
         // Clear the front buffer
-        glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.02f, 0.02f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
+		
 		// Render vaos
+		
 		// light
 		glUniform3fv(notex_colorLocation, 1, lightColor);
 		glUniform3fv(notex_positionLocation, 1, lightPosition);
         glBindVertexArray(vao[0]);
         glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, 1);
-        //~ glBindVertexArray(vao[1]);
-        //~ glDrawElements(GL_TRIANGLES, plane_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
         
-        // cube
+        // cube / occluders
 		glUniform3fv(notex_colorLocation, 1, cubeColor);
 		glUniform3fv(notex_positionLocation, 1, cubePosition);
         glBindVertexArray(vao[0]);
         glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, 1);
+        
 
 		// end notex
 		
@@ -738,6 +740,26 @@ int main( int argc, char **argv )
 		//~ glViewport(0,0,width,height);
 		//~ glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         //~ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		// Draw quad
+		glBindVertexArray(vao[2]);
+		glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
+		
+		// ---------------
+        // --- LS BLUR ---
+        // ---------------
+		// Bind blur shader
+		glUseProgram(blur_shader.program);
+		// Upload uniforms
+        glActiveTexture(GL_TEXTURE0);
+		glUniform1i(blur_tex1Location, 0);
+		glUniform1i(blur_samplesLocation, (int)blurSamples);
+		
+		glViewport( 0, 0, width, height);
+		
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 , GL_TEXTURE_2D, lsTexture[0], 0);
+		
+		glBindTexture(GL_TEXTURE_2D, lsTexture[1]);
 		
 		// Draw quad
 		glBindVertexArray(vao[2]);
@@ -815,7 +837,7 @@ int main( int argc, char **argv )
         glBindTexture(GL_TEXTURE_2D, gbufferTextures[2]);        
         // Bind light scattering to unit 3
         glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D, lsTexture[1]);        
+        glBindTexture(GL_TEXTURE_2D, lsTexture[0]);        
 
         // Blit above the rest
         glDisable(GL_DEPTH_TEST);
@@ -898,16 +920,15 @@ int main( int argc, char **argv )
 		// Upload uniforms
         glActiveTexture(GL_TEXTURE0);
 		glUniform1i(blur_tex1Location, 0);
-		glUniform1i(blur_samplesLocation, (int)blurSamples);
-		//~ glUniform2i(blur_directionLocation, ??);
+		//~ glUniform1i(blur_samplesLocation, (int)blurSamples);
+		glUniform1i(blur_samplesLocation, 1); // disable blur
 		
 		//~ glViewport( 0, 0, width/2, height/2);
 		glViewport( 0, 0, width, height);
 		
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 , GL_TEXTURE_2D, fxBufferTextures[2], 0);
 		
-		glBindTexture(GL_TEXTURE_2D, fxBufferTextures[1]); // with Sobel
-		//~ glBindTexture(GL_TEXTURE_2D, fxBufferTextures[0]); // without Sobel
+		glBindTexture(GL_TEXTURE_2D, fxBufferTextures[1]);
 		
 		// Draw quad
 		glBindVertexArray(vao[2]);

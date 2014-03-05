@@ -26,7 +26,7 @@ uniform float decay = 0.9;
 uniform float density = 1.0;
 uniform float weight = 1.0;
 
-const int NUM_SAMPLES = 200;
+const int NUM_SAMPLES = 400;
 
 out vec4  Color;
 
@@ -60,7 +60,7 @@ void main(void)
 	//~ vec3 d_color = vec3(LightPosition.z,0.0,0.0);
 	//~ vec3 d_color = vec3(1.0,1.0,0.0);
 	
-	Color = vec4(color, 1.0);
+	Color = vec4(color, 1.0) * exposure;
 	//~ Color = firstPass;
 	
 }

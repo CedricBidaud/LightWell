@@ -27,9 +27,9 @@ void main ()
 {
 	//~ vec4 inColor = texture(Texture1, uv).rgba;
 	vec4 blured = vec4(0.0);
-	
-	for(int i = 0; i < SampleCount; ++i){
-		for(int j = 0; j < SampleCount; ++j){
+	int samples = SampleCount * 2;
+	for(int i = -samples / 2; i < samples / 2; ++i){
+		for(int j = -samples / 2; j < samples / 2; ++j){
 			vec2 tempUV = uv;
 			tempUV.x += i / 1024.0f;
 			tempUV.y += j / 768.0f;
@@ -37,7 +37,7 @@ void main ()
 		}
 	}
 	
-	blured /= SampleCount*SampleCount;
+	blured /= (SampleCount+1)*(SampleCount+1);
 	
     OutColor = blured;    //~ OutColor = inColor;
 }
