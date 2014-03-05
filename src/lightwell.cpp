@@ -706,11 +706,13 @@ int main( int argc, char **argv )
         glBindVertexArray(vao[0]);
         glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, 1);
         
+        int nbInstances = 1;
+        
         // cube / occluders
 		glUniform3fv(notex_colorLocation, 1, cubeColor);
 		glUniform3fv(notex_positionLocation, 1, cubePosition);
         glBindVertexArray(vao[0]);
-        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, 1);
+        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, nbInstances);
         
 
 		// end notex
@@ -721,8 +723,6 @@ int main( int argc, char **argv )
 		// light scattering
 		
 		glUseProgram(scatter_shader.program);
-		
-		//~ std::cout << "lp : " << lightPosition[0] << " - " << lightPosition[1] << " - " << lightPosition[2] << std::endl;
 		
 		glUniform3fv(scatter_lightPositionLocation, 1, lightPosition);
 		glUniform1i(scatter_firstPassLocation, 0);
@@ -736,10 +736,6 @@ int main( int argc, char **argv )
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, lsTexture[0]);
-		
-		//~ glViewport(0,0,width,height);
-		//~ glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        //~ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Draw quad
 		glBindVertexArray(vao[2]);
@@ -802,7 +798,7 @@ int main( int argc, char **argv )
 
         // Render vaos
         glBindVertexArray(vao[0]);
-        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, 1);
+        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, nbInstances);
         //~ glBindVertexArray(vao[1]);
         //~ glDrawElements(GL_TRIANGLES, plane_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
 

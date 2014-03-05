@@ -20,6 +20,7 @@ void main(void)
 	vertex.uv = VertexTexCoord;
 	vertex.normal = vec3(Object * vec4(VertexNormal, 1.0));; 
 	vertex.position = vec3(Object * vec4(VertexPosition, 1.0));
+	//~ vertex.position += vec3(gl_InstanceID, 0.0, 0.0);
 	vertex.position.x += (gl_InstanceID % 8) * 1.5; 
 	vertex.position.y += (gl_InstanceID % 4) * 1.5; 
 	vertex.position.z += (int(gl_InstanceID / 8) * 1.5); 

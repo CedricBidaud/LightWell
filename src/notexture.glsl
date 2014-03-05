@@ -9,10 +9,13 @@ in vec3 VertexPosition;
 //~ out vec3 vPos;
 
 void main(void){	
-	//~ vColor = VertexColor;
 	
-	gl_Position = Projection * View * vec4(VertexPosition + Position, 1.0);
-	//~ vPos = Position;
+	vec3 tempPos = VertexPosition + Position;
+	
+	//~ tempPos += vec3(gl_InstanceID, 0.0, 0.0);
+	
+	gl_Position = Projection * View * vec4(tempPos, 1.0);
+	
 }
 
 #endif
