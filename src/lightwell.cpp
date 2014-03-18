@@ -221,6 +221,7 @@ int main( int argc, char **argv )
     GLuint gbuffer_specLocation = glGetUniformLocation(gbuffer_shader.program, "Spec");
     GLuint gbuffer_lightPositionLocation = glGetUniformLocation(gbuffer_shader.program, "LightPosition");
     GLuint gbuffer_worldToScreenLocation = glGetUniformLocation(gbuffer_shader.program, "WorldToScreen");
+    GLuint gbuffer_nbInstancesLocation = glGetUniformLocation(gbuffer_shader.program, "NbInstances");
 
     // Load Blit shader
     ShaderGLSL blit_shader;
@@ -344,6 +345,10 @@ int main( int argc, char **argv )
     GLuint notex_viewLocation = glGetUniformLocation(notex_shader.program, "View");
     GLuint notex_colorLocation = glGetUniformLocation(notex_shader.program, "UColor");
     GLuint notex_positionLocation = glGetUniformLocation(notex_shader.program, "Position");
+    GLuint notex_isLightLocation = glGetUniformLocation(notex_shader.program, "isLight");
+    GLuint notex_timeLocation = glGetUniformLocation(notex_shader.program, "Time");
+    GLuint notex_nbInstancesLocation = glGetUniformLocation(notex_shader.program, "NbInstances");
+    
     
     // Load scattering shader
     ShaderGLSL scatter_shader;
@@ -367,6 +372,8 @@ int main( int argc, char **argv )
     
     
 	float coord = 0.5f;
+	
+	float lightCoord = 15.0f;
 
     // Load geometry
     int   cube_triangleCount = 12;
@@ -374,6 +381,15 @@ int main( int argc, char **argv )
     float cube_uvs[] = {0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f,  1.f, 0.f,  1.f, 1.f,  0.f, 1.f,  1.f, 1.f,  0.f, 0.f, 0.f, 0.f, 1.f, 1.f,  1.f, 0.f,  };
     float cube_vertices[] = {-coord, -coord, coord, coord, -coord, coord, -coord, coord, coord, coord, coord, coord, -coord, coord, coord, coord, coord, coord, -coord, coord, -coord, coord, coord, -coord, -coord, coord, -coord, coord, coord, -coord, -coord, -coord, -coord, coord, -coord, -coord, -coord, -coord, -coord, coord, -coord, -coord, -coord, -coord, coord, coord, -coord, coord, coord, -coord, coord, coord, -coord, -coord, coord, coord, coord, coord, coord, coord, coord, coord, -coord, -coord, -coord, -coord, -coord, -coord, coord, -coord, coord, -coord, -coord, coord, -coord, -coord, -coord, coord, -coord, coord, coord };
     float cube_normals[] = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, };
+    
+    // light
+    int   light_triangleCount = 12;
+    int   light_triangleList[] = {0, 1, 2, 2, 1, 3, 4, 5, 6, 6, 5, 7, 8, 9, 10, 10, 9, 11, 12, 13, 14, 14, 13, 15, 16, 17, 18, 19, 17, 20, 21, 22, 23, 24, 25, 26, };
+    float light_uvs[] = {0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f,  1.f, 0.f,  1.f, 1.f,  0.f, 1.f,  1.f, 1.f,  0.f, 0.f, 0.f, 0.f, 1.f, 1.f,  1.f, 0.f,  };
+    float light_vertices[] = {-lightCoord, -lightCoord, lightCoord, lightCoord, -lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, -lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord, -lightCoord, -lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord, -lightCoord, -lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, -lightCoord, lightCoord, -lightCoord, lightCoord, -lightCoord, -lightCoord, lightCoord, -lightCoord, -lightCoord, -lightCoord, lightCoord, -lightCoord, lightCoord, lightCoord };
+    float light_normals[] = {0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, };
+    
+    
     int   plane_triangleCount = 2;
     int   plane_triangleList[] = {0, 1, 2, 2, 1, 3}; 
     float plane_uvs[] = {0.f, 0.f, 0.f, 10.f, 10.f, 0.f, 10.f, 10.f};
@@ -384,12 +400,12 @@ int main( int argc, char **argv )
     float quad_vertices[] =  {-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0};
 
     // Vertex Array Object
-    GLuint vao[3];
-    glGenVertexArrays(3, vao);
+    GLuint vao[4];
+    glGenVertexArrays(4, vao);
 
     // Vertex Buffer Objects
-    GLuint vbo[12];
-    glGenBuffers(12, vbo);
+    GLuint vbo[14];
+    glGenBuffers(14, vbo);
     
     //~ GLuint colVbo[1];
     //~ glGenBuffers(1, colVbo);
@@ -414,11 +430,29 @@ int main( int argc, char **argv )
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*2, (void*)0);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_uvs), cube_uvs, GL_STATIC_DRAW);
-    //~ // Bind colors and upload data
-    //~ glBindBuffer(GL_ARRAY_BUFFER, colVbo[0]);
-    //~ glEnableVertexAttribArray(3);
-    //~ glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*3, (void*)0);
-    //~ glBufferData(GL_ARRAY_BUFFER, sizeof(cube_verticesColor), cube_verticesColor, GL_STATIC_DRAW);
+    
+    // light
+    glBindVertexArray(vao[3]);
+    // Bind indices and upload data
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[10]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(light_triangleList), light_triangleList, GL_STATIC_DRAW);
+    // Bind vertices and upload data
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[11]);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*3, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(light_vertices), light_vertices, GL_STATIC_DRAW);
+    // Bind normals and upload data
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[12]);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*3, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(light_normals), light_normals, GL_STATIC_DRAW);
+    // Bind uv coords and upload data
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[13]);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT)*2, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(light_uvs), light_uvs, GL_STATIC_DRAW);
+    
+    
 
     // Plane
     glBindVertexArray(vao[1]);
@@ -594,6 +628,10 @@ int main( int argc, char **argv )
 	float density = 1.0;
 	float weight = 1.0;
 
+	float nbInstances = 200;
+	
+	bool showInterface = true;
+
     do
     {
         t = glfwGetTime();
@@ -617,6 +655,19 @@ int main( int argc, char **argv )
             guiStates.panLock = true;
         else
             guiStates.panLock = false;
+
+		int iKey = glfwGetKey(73);
+		int jKey = glfwGetKey(74);
+		
+		if(iKey){
+			//~ std::cerr << "I pressed" << std::endl;
+			showInterface = true;
+		}
+		
+		if(jKey){
+			//~ std::cerr << "J pressed" << std::endl;
+			showInterface = false;
+		}
 
         // Camera movements
         int altPressed = glfwGetKey(GLFW_KEY_LSHIFT);
@@ -659,9 +710,9 @@ int main( int argc, char **argv )
   
 		// light infos
 		//~ float lightPosition[3] = { 2.0f, 2.0f, 1.0f};
-		float lightPosition[3] = { 2.0f, 2.0f, 2.0f};
+		float lightPosition[3] = { 0.0f, 20.0f, 0.0f};
 		float lightColor[3] = {1.f, 1.f, 1.f};
-		float lightIntensity = 10.0f;
+		float lightIntensity = 200.0f;
 		
 		float cubeColor[3] = {0.f,0.f,0.f};
 		float cubePosition[3] = {0.f,0.f,0.f};
@@ -694,7 +745,7 @@ int main( int argc, char **argv )
         glEnable(GL_BLEND);
 
         // Clear the front buffer
-        glClearColor(0.0f, 0.02f, 0.02f, 1.0f);
+        glClearColor(0.01f, 0.04f, 0.06f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 		
@@ -703,16 +754,19 @@ int main( int argc, char **argv )
 		// light
 		glUniform3fv(notex_colorLocation, 1, lightColor);
 		glUniform3fv(notex_positionLocation, 1, lightPosition);
-        glBindVertexArray(vao[0]);
+		glUniform1i(notex_isLightLocation, 1);
+        glBindVertexArray(vao[3]);
         glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, 1);
-        
-        int nbInstances = 1;
         
         // cube / occluders
 		glUniform3fv(notex_colorLocation, 1, cubeColor);
 		glUniform3fv(notex_positionLocation, 1, cubePosition);
+		glUniform1i(notex_isLightLocation, 0);
+		glUniform1f(notex_timeLocation, t);
+		glUniform1i(notex_nbInstancesLocation, (int)nbInstances);
+		
         glBindVertexArray(vao[0]);
-        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, nbInstances);
+        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, (int)nbInstances);
         
 
 		// end notex
@@ -749,7 +803,7 @@ int main( int argc, char **argv )
 		// Upload uniforms
         glActiveTexture(GL_TEXTURE0);
 		glUniform1i(blur_tex1Location, 0);
-		glUniform1i(blur_samplesLocation, (int)blurSamples);
+		//~ glUniform1i(blur_samplesLocation, (int)blurSamples);
 		
 		glViewport( 0, 0, width, height);
 		
@@ -787,6 +841,7 @@ int main( int argc, char **argv )
         glUniformMatrix4fv(gbuffer_worldToScreenLocation, 1, 0, glm::value_ptr(worldToScreen));
         glUniform3fv(gbuffer_lightPositionLocation, 1, lightPosition);
         glUniform1f(gbuffer_timeLocation, t);
+        glUniform1i(gbuffer_nbInstancesLocation, (int)nbInstances);
         glUniform1i(gbuffer_diffuseLocation, 0);
         glUniform1i(gbuffer_specLocation, 1);
 
@@ -798,14 +853,11 @@ int main( int argc, char **argv )
 
         // Render vaos
         glBindVertexArray(vao[0]);
-        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, nbInstances);
-        //~ glBindVertexArray(vao[1]);
-        //~ glDrawElements(GL_TRIANGLES, plane_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-
+        glDrawElementsInstanced(GL_TRIANGLES, cube_triangleCount * 3, GL_UNSIGNED_INT, (void*)0, (int)nbInstances);
+        
         // Unbind framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        //~ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport( 0, 0, width, height );
 
         // Clear the front buffer
@@ -854,26 +906,8 @@ int main( int argc, char **argv )
         // Clear the front buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		// LIGHTS
-		/*
-        for (int i = 0; i < (int) numLights; ++i)
-        {
-            float tl = t * i;
-
-            //Update light uniforms
-            float lightPosition[3] = { sinf(tl) * 10.f, -0.5f, cosf(tl) * 10.f};
-            float lightColor[3] = {sinf(tl) *  1.f, 1.f - cosf(tl), -sinf(tl)};
-            float lightIntensity = 10.0;
-
-            glUniform3fv(lighting_lightPositionLocation, 1, lightPosition);
-            glUniform3fv(lighting_lightColorLocation, 1, lightColor);
-            glUniform1f(lighting_lightIntensityLocation, lightIntensity);
-
-            // Draw quad
-            glBindVertexArray(vao[2]);
-            glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-        }
-        */
 
 		// upload light uniforms
 		glUniform3fv(lighting_lightPositionLocation, 1, lightPosition);
@@ -907,7 +941,7 @@ int main( int argc, char **argv )
 		glBindVertexArray(vao[2]);
 		glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
 		
-		
+		/*
 		// ------------
         // --- BLUR ---
         // ------------
@@ -917,7 +951,7 @@ int main( int argc, char **argv )
         glActiveTexture(GL_TEXTURE0);
 		glUniform1i(blur_tex1Location, 0);
 		//~ glUniform1i(blur_samplesLocation, (int)blurSamples);
-		glUniform1i(blur_samplesLocation, 1); // disable blur
+		//~ glUniform1i(blur_samplesLocation, 1); // disable blur
 		
 		//~ glViewport( 0, 0, width/2, height/2);
 		glViewport( 0, 0, width, height);
@@ -929,8 +963,8 @@ int main( int argc, char **argv )
 		// Draw quad
 		glBindVertexArray(vao[2]);
 		glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-		
-		
+		*/
+		/*
 		// -----------
         // --- COC --- // Circle of Confusion
         // -----------
@@ -949,13 +983,13 @@ int main( int argc, char **argv )
 		
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 , GL_TEXTURE_2D, fxBufferTextures[0], 0);
 		
-		glBindTexture(GL_TEXTURE_2D, gbufferTextures[2]);
+		glBindTexture(GL_TEXTURE_2D, gbufferTextures[1]);
 		
 		// Draw quad
 		glBindVertexArray(vao[2]);
 		glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-		
-		//~ /*
+		*/
+		/*
 		// -----------
         // --- DOF --- // Depth of Field
         // -----------
@@ -983,7 +1017,7 @@ int main( int argc, char **argv )
 		
 		
 		
-		//~ */
+		*/
 		
         // -----------
         // -- GAMMA -- sur le framebuffer par défaut
@@ -1004,7 +1038,7 @@ int main( int argc, char **argv )
 		glUniform1i(gamma_tex1Location, 0);
 		
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, fxBufferTextures[3]);
+        glBindTexture(GL_TEXTURE_2D, fxBufferTextures[1]);
         
 		glUniform1f(gamma_gammaLocation, gamma);
 		
@@ -1014,87 +1048,92 @@ int main( int argc, char **argv )
         
         // END FX
         
+		if(showInterface){
+			// Bind blit shader
+			glUseProgram(blit_shader.program);
+			// Upload uniforms
+			glUniform1i(blit_tex1Location, 0);
+			// use only unit 0
+			glActiveTexture(GL_TEXTURE0);
 
-        // Bind blit shader
-        glUseProgram(blit_shader.program);
-        // Upload uniforms
-        glUniform1i(blit_tex1Location, 0);
-        // use only unit 0
-        glActiveTexture(GL_TEXTURE0);
-
-        // Viewport 
-        glViewport( 0, 0, width/4, height/4  );
-        // Bind texture
-        //~ glBindTexture(GL_TEXTURE_2D, gbufferTextures[0]);        
-        glBindTexture(GL_TEXTURE_2D, lsTexture[0]);        
-        // Draw quad
-        glBindVertexArray(vao[2]);
-        glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-        // Viewport 
-        glViewport( width/4, 0, width/4, height/4  );
-        // Bind texture
-        glBindTexture(GL_TEXTURE_2D, lsTexture[1]);        
-        // Draw quad
-        glBindVertexArray(vao[2]);
-        glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-        // Viewport 
-        glViewport( width/4 * 2, 0, width/4, height/4  );
-        // Bind texture
-        glBindTexture(GL_TEXTURE_2D, gbufferTextures[2]);        
-        // Draw quad
-        glBindVertexArray(vao[2]);
-        glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
-        
-        // fx
-        // Viewport 
-        glViewport( width/4 * 3, 0, width/4, height/4  );
-        // Bind texture
-        glBindTexture(GL_TEXTURE_2D, fxBufferTextures[0]);        
-        // Draw quad
-        glBindVertexArray(vao[2]);
-        glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
+			// Viewport 
+			glViewport( 0, 0, width/4, height/4  );
+			// Bind texture
+			//~ glBindTexture(GL_TEXTURE_2D, gbufferTextures[0]);        
+			glBindTexture(GL_TEXTURE_2D, lsTexture[0]);        
+			// Draw quad
+			glBindVertexArray(vao[2]);
+			glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
+			// Viewport 
+			glViewport( width/4, 0, width/4, height/4  );
+			// Bind texture
+			glBindTexture(GL_TEXTURE_2D, lsTexture[1]);        
+			// Draw quad
+			glBindVertexArray(vao[2]);
+			glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
+			// Viewport 
+			glViewport( width/4 * 2, 0, width/4, height/4  );
+			// Bind texture
+			glBindTexture(GL_TEXTURE_2D, gbufferTextures[2]);        
+			// Draw quad
+			glBindVertexArray(vao[2]);
+			glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
+			
+			// fx
+			// Viewport 
+			glViewport( width/4 * 3, 0, width/4, height/4  );
+			// Bind texture
+			glBindTexture(GL_TEXTURE_2D, fxBufferTextures[0]);        
+			// Draw quad
+			glBindVertexArray(vao[2]);
+			glDrawElements(GL_TRIANGLES, quad_triangleCount * 3, GL_UNSIGNED_INT, (void*)0);
+		}
         
 #if 1
-        // Draw UI
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glViewport(0, 0, width, height);
+			// Draw UI
+			glDisable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glViewport(0, 0, width, height);
+		
+		if(showInterface){
 
-        unsigned char mbut = 0;
-        int mscroll = 0;
-        int mousex; int mousey;
-        glfwGetMousePos(&mousex, &mousey);
-        mousey = height - mousey;
+			unsigned char mbut = 0;
+			int mscroll = 0;
+			int mousex; int mousey;
+			glfwGetMousePos(&mousex, &mousey);
+			mousey = height - mousey;
 
-        if( leftButton == GLFW_PRESS )
-            mbut |= IMGUI_MBUT_LEFT;
+			if( leftButton == GLFW_PRESS )
+				mbut |= IMGUI_MBUT_LEFT;
 
-        imguiBeginFrame(mousex, mousey, mbut, mscroll);
-        int logScroll = 0;
-        char lineBuffer[512];
-        imguiBeginScrollArea("001", width - 210, height - 310, 200, 300, &logScroll);
-        sprintf(lineBuffer, "FPS %f", fps);
-        imguiLabel(lineBuffer);
-        //~ imguiSlider("Lights", &numLights, 0.0, 100.0, 1.0);
-        imguiSlider("Gamma", &gamma, 0.1, 6.0, 0.1);
-        imguiSlider("Sobel", &sobelCoef, 0.0, 1.0, 0.1);
-        imguiSlider("Blur Samples", &blurSamples, 1.0, 100.0, 1.0);
-        imguiSlider("Focus plane", &focusPlane, 1.0, 100.0, 1.0);
-        imguiSlider("Near plane", &nearPlane, 1.0, 100.0, 1.0);
-        imguiSlider("Far plane", &farPlane, 1.0, 100.0, 1.0);
-        imguiSlider("Exposure", &exposure, 0.0, 2.0, 0.1);
-        imguiSlider("Decay", &decay, 0.0, 2.0, 0.1);
-        imguiSlider("Density", &density, 0.0, 2.0, 0.1);
-        imguiSlider("Weight", &weight, 0.0, 2.0, 0.1);
-        
-        //~ uniform float exposure = 1.0;
-		//~ uniform float decay = 0.9;
-		//~ uniform float density = 1.0;
-		//~ uniform float weight = 1.0;
-        imguiEndScrollArea();
-        imguiEndFrame();
-        imguiRenderGLDraw(width, height); 
+			imguiBeginFrame(mousex, mousey, mbut, mscroll);
+			int logScroll = 0;
+			char lineBuffer[512];
+			imguiBeginScrollArea("001", width - 210, height - 310, 200, 300, &logScroll);
+			sprintf(lineBuffer, "FPS %f", fps);
+			imguiLabel(lineBuffer);
+			//~ imguiSlider("Lights", &numLights, 0.0, 100.0, 1.0);
+			imguiSlider("Gamma", &gamma, 0.1, 6.0, 0.1);
+			//~ imguiSlider("Sobel", &sobelCoef, 0.0, 1.0, 0.1);
+			//~ imguiSlider("Blur Samples", &blurSamples, 1.0, 100.0, 1.0);
+			//~ imguiSlider("Focus plane", &focusPlane, 1.0, 100.0, 1.0);
+			//~ imguiSlider("Near plane", &nearPlane, 1.0, 100.0, 1.0);
+			//~ imguiSlider("Far plane", &farPlane, 1.0, 100.0, 1.0);
+			imguiSlider("Exposure", &exposure, 0.0, 2.0, 0.1);
+			imguiSlider("Decay", &decay, 0.0, 2.0, 0.1);
+			imguiSlider("Density", &density, 0.0, 0.5, 0.001);
+			imguiSlider("Weight", &weight, 0.0, 2.0, 0.1);
+			imguiSlider("NbInstances", &nbInstances, 0.0, 1000.0, 100.);
+			
+			//~ uniform float exposure = 1.0;
+			//~ uniform float decay = 0.9;
+			//~ uniform float density = 1.0;
+			//~ uniform float weight = 1.0;
+			imguiEndScrollArea();
+			imguiEndFrame();
+			imguiRenderGLDraw(width, height);
+		}
 
         glDisable(GL_BLEND);
 #endif

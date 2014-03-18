@@ -3,6 +3,9 @@ uniform mat4 Projection;
 uniform mat4 View;
 uniform mat4 Object;
 
+uniform int NbInstances;
+uniform float Time;
+
 in vec3 VertexPosition;
 in vec3 VertexNormal;
 in vec2 VertexTexCoord;
@@ -21,10 +24,22 @@ void main(void)
 	vertex.normal = vec3(Object * vec4(VertexNormal, 1.0));; 
 	vertex.position = vec3(Object * vec4(VertexPosition, 1.0));
 	//~ vertex.position += vec3(gl_InstanceID, 0.0, 0.0);
-	vertex.position.x += (gl_InstanceID % 8) * 1.5; 
-	vertex.position.y += (gl_InstanceID % 4) * 1.5; 
-	vertex.position.z += (int(gl_InstanceID / 8) * 1.5); 
-	gl_Position = Projection * View * vec4(vertex.position, 1.0);
+	float PI = 3.1416;
+	
+	int nbInstances = NbInstances;
+	
+	int nbFloors = nbInstances / 10;
+	int nbCubePerFloor = int(nbInstances / nbFloors);
+	
+	float rep = ((2.0*PI)/nbCubePerFloor) * (gl_InstanceID) + 0.005*gl_InstanceID;
+	
+	vertex.position.x += 10*cos(rep+(Time/10.0));
+	vertex.position.y += 10*sin(rep+(Time/10.0));
+	//~ vertex.position.x += 10*cos(rep*(1));
+	//~ vertex.position.y += 10*sin(rep*(1));
+	vertex.position.z += int(gl_InstanceID/nbFloors);
+
+	gl_Position = Projection * View * vec4(vertex.position/10.0, 1.0);
 }
 
 #endif
@@ -82,7 +97,6 @@ void main(void){
 
 #if defined(FRAGMENT)
 uniform vec3 CameraPosition;
-uniform float Time;
 uniform vec3 LightPosition;
 uniform mat4 WorldToScreen;
 
