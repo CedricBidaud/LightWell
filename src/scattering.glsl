@@ -36,7 +36,8 @@ void main(void)
 	vec4 firstPass = texture(FirstPass, uv).rgba;
 	vec2 lightScreenPos = (WorldToScreen * vec4(LightPosition, 1.0)).xy; // CHECKED !!
 	
-	vec2 deltaTextCoord = vec2(gl_FragCoord.x/1024.0, gl_FragCoord.y/768.0) - lightScreenPos;
+	//~ vec2 deltaTextCoord = vec2(gl_FragCoord.x/1024.0, gl_FragCoord.y/768.0) - lightScreenPos;
+	vec2 deltaTextCoord = vec2(gl_FragCoord.x/1280.0, gl_FragCoord.y/1024.0) - lightScreenPos;
 	vec2 textCoord = uv;
 	
 	deltaTextCoord *= 1.0 / float(NUM_SAMPLES) * density;
@@ -61,6 +62,7 @@ void main(void)
 	//~ vec3 d_color = vec3(1.0,1.0,0.0);
 	
 	Color = vec4(color, 1.0) * exposure;
+	//~ Color = vec4(gl_FragCoord.x/1280.0, gl_FragCoord.y/1024.0, 0.0, 1.0) * exposure;
 	//~ Color = firstPass;
 	
 }

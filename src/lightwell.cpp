@@ -109,7 +109,8 @@ void init_gui_states(GUIStates & guiStates)
 
 int main( int argc, char **argv )
 {
-    int width = 1024, height=768;
+    //~ int width = 1024, height=768;
+    int width = 1280, height=1024;
     float widthf = (float) width, heightf = (float) height;
     double t;
     float fps = 0.f;
@@ -136,7 +137,7 @@ int main( int argc, char **argv )
         glfwTerminate();
         exit( EXIT_FAILURE );
     }
-
+	//~ glfwEnable(GLFW_MOUSE_CURSOR);
     glfwSetWindowTitle( "LightWell" );
 
 
@@ -1038,6 +1039,7 @@ int main( int argc, char **argv )
 		glUniform1i(gamma_tex1Location, 0);
 		
         glActiveTexture(GL_TEXTURE0);
+        //~ glBindTexture(GL_TEXTURE_2D, fxBufferTextures[1]);
         glBindTexture(GL_TEXTURE_2D, fxBufferTextures[1]);
         
 		glUniform1f(gamma_gammaLocation, gamma);

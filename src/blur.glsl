@@ -88,8 +88,10 @@ void main ()
 	for(int i = -3; i <= 3; ++i){
 		for(int j = -3; j <= 3; ++j){
 			vec2 tempUV = uv;
-			tempUV.x += i / 1024.0f;
-			tempUV.y += j / 768.0f;
+			//~ tempUV.x += i / 1024.0f;
+			tempUV.x += i / 1280.0f;
+			//~ tempUV.y += j / 768.0f;
+			tempUV.y += j / 1024.0f;
 			
 			int idx = (i+3) + (j+3)*7;
 			
